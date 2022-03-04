@@ -20,7 +20,10 @@
   "homepage": "https://github.com/trinhfx11768/blog-f8#readme",
   "dependencies": {
     "express": "^4.17.3",
-    "express-handlebars": "^6.0.2"
+    "express-handlebars": "^6.0.2",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.3.4",
+    "prettier": "^2.5.1"
   },
   "devDependencies": {
     "node-sass": "^7.0.1",
