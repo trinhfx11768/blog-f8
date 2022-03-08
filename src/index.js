@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const handlebars = require('express-handlebars');
+const methodOverride = require('method-override');
 
 const newsController = require('./app/controllers/NewsController');
 const route = require('./routes');
@@ -16,8 +17,16 @@ app.use(express.json());
 //Path cố định
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Dùng để đổi method (vì html chỉ hỗ trợ 2 method POST và GET - nhớ chú ý vị trí dòng này)
+app.use(methodOverride('_method'));
+
 // Template engine
-app.engine('.hbs', handlebars.engine({ extname: '.hbs' }));
+app.engine('.hbs', handlebars.engine({ 
+    extname: '.hbs',
+    helpers: {
+        sum: (a, b) => a + b,
+    }
+}));
 app.set('view engine', '.hbs');
 app.set('views', path.join(__dirname, 'resources', 'views'));
 
