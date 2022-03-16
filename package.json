@@ -25,6 +25,9 @@
     "lint-staged": "^12.3.4",
     "method-override": "^3.0.0",
     "mongoose": "^6.2.4",
+    "mongoose-delete": "^0.5.4",
+    "mongoose-sequence": "^5.3.1",
+    "mongoose-slug-generator": "^1.0.4",
     "prettier": "^2.5.1"
   },
   "devDependencies": {

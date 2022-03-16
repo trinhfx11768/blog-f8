@@ -1,0 +1,147 @@
+<form name="container-form" class="mt-4" method="POST" action="/courses/handle-action-forms">
+    <div>
+        <h3>Thùng rác</h3>
+        <a href="/me/stored/courses">Danh sách khóa học</a>
+
+        <div class="form-check mt-4 d-flex align-items-center">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+                Chọn tất cả
+            </label>
+            {{!-- id = inputState giúp chiều dài thẻ input co giãn theo nội dung input (bootstrap 4) --}}
+            <select id="inputState" class="form-control-sm ml-2" name="action" required>
+                <option selected value="">---Hành động---</option>
+                <option value="delete">Xóa</option>
+                <option value="restore">Phục hồi</option>
+            </select>
+
+            <button class="btn btn-primary btn-sm ml-2 checkbox-all-submit-btn" disabled>Thực Hiện</button>
+        </div>
+    </div>
+
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th scope="col" colspan="2">#</th>
+                <th scope="col">
+                    Tên khóa học
+                    {{{sortable 'name' _sort}}}
+                </th>
+                <th scope="col">Trình độ</th>
+                <th scope="col" colspan="2">Thời gian xóa</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each courses}}
+            <tr>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="courseIds" value="{{this._id}}">
+                    </div>
+                </td>
+                {{!--
+                hàm sum bên trang index => helpers
+                @index là cách đánh số của thư viện hbs
+                --}}
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.level}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="" class="btn btn-link btn-restore" data-id="{{this._id}}">Restore</a>
+                    <a href="/courses/{{this._id}}/delete" class="btn btn-link" data-toggle="modal"
+                        data-target="#delete-course-modal" data-id="{{this._id}}">Xóa vĩnh viễn</a>
+                </td>
+            </tr>
+            {{!-- nếu k có courses thì chạy phần else --}}
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">Thùng rác trống.
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    {{!-- confirm delete courses --}}
+    <div id="delete-course-modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xóa khóa học?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Vẫn muốn xóa khóa học này?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="btn-delete-course" type="button" class="btn btn-danger">Xóa bỏ</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+{{!-- Delete hidden form --}}
+<form name="delete-form-course" method="POST"></form>
+{{!-- Restore hidden form --}}
+<form name="restore-form-course" method="POST"></form>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var courseId;
+        var deleteForm = document.forms['delete-form-course'];
+        var restoreForm = document.forms['restore-form-course'];
+        var containerform = $('form[name="container-form"]');
+        var btnDeleteCourse = document.getElementById('btn-delete-course');
+        var btnRestore = $('.btn-restore');
+        var checkboxAll = $('#checkbox-all');
+        //select thẻ input có name = courseIds
+        var courseItemCheckbox = $('input[name="courseIds"]');
+        var checkAllSubmitBtn = $('.checkbox-all-submit-btn');
+
+        $('#delete-course-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            courseId = button.data('id') // Extract info from data-id attributes
+        })
+
+        btnDeleteCourse.onclick = function () {
+            deleteForm.action = '/courses/' + courseId + '/force?_method=DELETE';
+            deleteForm.submit();
+        }
+
+        btnRestore.click(function (e) {
+            e.preventDefault();
+            var courseId = ($(this).data('id'));
+            restoreForm.action = '/courses/' + courseId + '/restore?_method=PATCH';
+            restoreForm.submit();
+        });
+        //checkbox-all changed
+        checkboxAll.change(function () {
+            var isCheckedAll = $(this).prop('checked');
+            courseItemCheckbox.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        });
+        //courseItemCheckbox changed
+        courseItemCheckbox.change(function () {
+            //input[name="courseIds"]:checked => các thẻ input đã check
+            var isCheckedAll = courseItemCheckbox.length === $('input[name="courseIds"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn();
+        });
+        //ẩn/hiện btn "Thực hiện"
+        function renderCheckAllSubmitBtn() {
+            var checkedCount = $('input[name="courseIds"]:checked').length;
+            if (checkedCount > 0) {
+                checkAllSubmitBtn.attr('disabled', false);
+            } else {
+                checkAllSubmitBtn.attr('disabled', true);
+            };
+        }
+    });
+</script>
