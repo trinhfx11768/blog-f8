@@ -15,7 +15,7 @@ const port = 3000;
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-//Path cố định; __dirname là thư mục gốc project
+//static là path for folder công khai, cố định cố định; __dirname là thư mục gốc của project
 app.use(express.static(path.join(__dirname, 'public')));
 
 //Dùng để đổi method (vì html chỉ hỗ trợ 2 method POST và GET - nhớ chú ý vị trí dòng này)
